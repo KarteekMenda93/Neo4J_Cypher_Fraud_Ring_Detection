@@ -1,0 +1,34 @@
+MATCH p=()-[r:Driver]->() RETURN p LIMIT 100
+
+
+Match (a:Claim)-[:Driver]->(b:Driver)<-[:Passenger]-(c:Claim) return a,b,c
+
+
+
+MATCH p= (n:Claim)-->() where n.Claim_ID in ["55646N","806682N"] return p
+
+
+MATCH p= (a:Claim)-[:Incident_on]->(b:Incident_Date)<-[:Incident_on]-(c:Claim) return a,b,c
+
+
+
+to show all claims
+MATCH p=(n:Claim)-->() return p
+
+
+:param label => ('Claim_ID'); :param relationshipType => ('Is_Lawyer'); :param limit => ( 100); :param config => ({concurrency: 8, direction: 'Outgoing', weightProperty: null, defaultValue: 1, dampingFactor: 0.85, iterations: 25, writeProperty: 'pagerank'});
+
+CALL gds.graph.create('myGraph332','Claim_ID',{Is_Lawyer:{orientation:'UNDIRECTED'}})
+
+CALL gds.pageRank.stream('myGraph332') YIELD nodeId, score RETURN gds.util.asNode(nodeId).alias AS alias, score ORDER BY score DESC, alias ASC
+
+CALL gds.graph.create(‘pagerank_example’, ‘Claim_ID’, ‘Is_Lawyer’);
+
+CALL gds.pageRank.stream(‘pagerank_example’,{maxIterations: 20, dampingFactor: 0.85}) YIELD nodeId, score RETURN gds.util.asNode(nodeId).id AS name, score ORDER BY score DESC
+
+CALL algo.pageRank.stream("Claim_ID", "Is_Lawyer",
+{iterations:20})
+YIELD nodeId, score
+MATCH (node) WHERE id(node) = nodeId
+RETURN node.name AS page,score
+ORDER BY score DESC
